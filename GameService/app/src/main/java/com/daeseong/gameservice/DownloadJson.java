@@ -9,12 +9,17 @@ public class DownloadJson  extends AsyncTask<Void, Void, String> {
 
     private static final String TAG = DownloadJson.class.getSimpleName();
 
-    private String sUrl = "http://110.9.68.64:8080/api/AllList";
+    //사용시에는 리얼 IP 필요
+    private String sUrl = "http://110.9.68.64:8080/api/AllList";//"http://127.0.0.1:8080/api/AllList";
 
     @Override
     protected String doInBackground(Void... voids) {
-
-        String sResult = HttpUtil.GetGameDataResult(sUrl);
+        String sResult = "";
+        try {
+            sResult = HttpUtil.GetGameDataResult(sUrl);
+        }catch (Exception ex){
+            Log.e(TAG, ex.getMessage().toString());
+        }
         return sResult;
     }
 
