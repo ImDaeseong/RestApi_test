@@ -46,6 +46,41 @@ public class GameService extends Service {
         super.onCreate();
 
         initData();
+
+    }
+
+    private void PreferencesInfo(boolean bload){
+
+        try{
+
+            if(bload) {
+                lastpackagename = (String) Preferences_util.getValue(this, "itemID", "");
+                lastStarttm = (String) Preferences_util.getValue(this, "itemTime", "");
+                Log.e(TAG, "get lastpackagename:" + lastpackagename + "  lastStarttm:" + lastStarttm);
+            }else {
+                Preferences_util.setValue(this, "itemID", lastpackagename);
+                Preferences_util.setValue(this, "itemTime", lastStarttm);
+                Log.d(TAG, "set lastpackagename:" + lastpackagename + "  lastStarttm:" + lastStarttm);
+            }
+
+        }catch (Exception ex){
+            Log.e(TAG, ex.getMessage().toString());
+        }
+
+    }
+
+    private void PreferencesInit(){
+
+        try{
+            lastpackagename = "";
+            lastStarttm = "";
+            Preferences_util.setValue(this, "itemID", lastpackagename);
+            Preferences_util.setValue(this, "itemTime", lastStarttm);
+            Log.d(TAG, "set lastpackagename:" + lastpackagename + "  lastStarttm:" + lastStarttm);
+        }catch (Exception ex){
+            Log.e(TAG, ex.getMessage().toString());
+        }
+
     }
 
     @TargetApi(Build.VERSION_CODES.ICE_CREAM_SANDWICH)
@@ -54,9 +89,7 @@ public class GameService extends Service {
 
         Log.d(TAG, "onStartCommand");
 
-        //lastpackagename = (String)Preferences_util.getValue(this, "itemID", "");
-        //lastStarttm = (String)Preferences_util.getValue(this, "itemTime", "");
-        //Log.d(TAG, "onStartCommand lastpackagename:" + lastpackagename + "  lastStarttm:" + lastStarttm);
+        PreferencesInfo(true);
 
         startTimer();
 
@@ -69,9 +102,7 @@ public class GameService extends Service {
 
         Log.d(TAG, "onDestroy");
 
-        //Preferences_util.setValue(this, "itemID", lastpackagename);
-        //Preferences_util.setValue(this, "itemTime", lastStarttm);
-        //Log.d(TAG, "onDestroy lastpackagename:" + lastpackagename + "  lastStarttm:" + lastStarttm);
+        PreferencesInfo(false);
 
         closeTimer();
 
@@ -188,6 +219,24 @@ public class GameService extends Service {
 
             if (runningTask != null && !runningTask.isEmpty()){
 
+                if(!lastpackagename.equals(runningTask.get(runningTask.lastKey()).getPackageName())){
+
+                    if(gameinfoMap.containsKey(lastpackagename)){
+                        String sLog = "";
+                        sLog = String.format("종료된 앱:%s  시작시간:%s  끝시간:%s  ", gameinfoMap.get(lastpackagename).getPackagename(),  gameinfoMap.get(lastpackagename).getStarttm(), gameinfoMap.get(lastpackagename).getEndtm());
+                        Log.e(TAG, sLog);
+
+                        Message msg = handler.obtainMessage();
+                        msg.what = 0;
+                        msg.obj = sLog;
+                        handler.sendMessage(msg);
+
+                        //제거
+                        gameinfoMap.remove(lastpackagename);
+                        PreferencesInit();
+                    }
+                }
+
                 //항목에 있는 패키지명 등록
                 if(iteminfo.getInstance().isGameItem(runningTask.get(runningTask.lastKey()).getPackageName())) {
 
@@ -196,13 +245,6 @@ public class GameService extends Service {
                     if(!gameinfoMap.containsKey(packagename)){
 
                         gameinfoMap.put(packagename, new gameinfo(packagename, getTimeDate(), getTimeDate()) );
-                        /*
-                        if(TextUtils.isEmpty(lastStarttm)){
-                            gameinfoMap.put(packagename, new gameinfo(packagename, getTimeDate(), getTimeDate()) );
-                        }else {
-                            gameinfoMap.put(packagename, new gameinfo(packagename, lastStarttm, getTimeDate()) );
-                        }
-                        */
 
                         String sLog = "";
                         sLog = String.format("시작된 앱이름:%s  시작시간:%s  끝시간:%s  ", packagename,  gameinfoMap.get(packagename).getStarttm(), gameinfoMap.get(packagename).getEndtm());
@@ -245,36 +287,15 @@ public class GameService extends Service {
                         msg.obj = sLog;
                         handler.sendMessage(msg);
 
-                        //미존재시 제거
+                        //제거
                         gameinfoMap.remove(lastpackagename);
-                        lastpackagename = "";
-                        lastStarttm = "";
-                        //Preferences_util.setValue(this, "itemID", lastpackagename);
-                        //Preferences_util.setValue(this, "itemTime", lastStarttm);
+                        PreferencesInit();
                     }
 
                 }
-            } else {
-
-                if(gameinfoMap.containsKey(lastpackagename)){
-                    String sLog = "";
-                    sLog = String.format("종료된 앱:%s  시작시간:%s  끝시간:%s  ", gameinfoMap.get(lastpackagename).getPackagename(),  gameinfoMap.get(lastpackagename).getStarttm(), gameinfoMap.get(lastpackagename).getEndtm());
-                    Log.e(TAG, sLog);
-
-                    Message msg = handler.obtainMessage();
-                    msg.what = 0;
-                    msg.obj = sLog;
-                    handler.sendMessage(msg);
-
-                    //미존재시 제거
-                    gameinfoMap.remove(lastpackagename);
-                    lastpackagename = "";
-                    lastStarttm = "";
-                    //Preferences_util.setValue(this, "itemID", lastpackagename);
-                    //Preferences_util.setValue(this, "itemTime", lastStarttm);
-                }
 
             }
+
         }
     }
 
