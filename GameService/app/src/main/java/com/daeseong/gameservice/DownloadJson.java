@@ -28,9 +28,7 @@ public class DownloadJson  extends AsyncTask<Void, Void, String> {
         super.onPostExecute(sResult);
 
         try {
-
             JSONArray jsonArray = new JSONArray(sResult);
-
             for (int i = 0; i < jsonArray.length(); i++) {
 
                 JSONObject jsonObject = jsonArray.getJSONObject(i);
@@ -42,11 +40,9 @@ public class DownloadJson  extends AsyncTask<Void, Void, String> {
                 String gamedesc = jsonObject.getString("gamedesc");
                 iteminfo.getInstance().setGameItem(packagename);
             }
-
         }catch (Exception ex){
             Log.e(TAG, ex.getMessage().toString());
         }
-
     }
 
 }

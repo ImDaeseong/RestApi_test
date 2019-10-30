@@ -5,7 +5,6 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.app.AppOpsManager;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.provider.Settings;
@@ -14,9 +13,6 @@ import android.util.Log;
 public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = MainActivity.class.getSimpleName();
-
-    private Intent intent = null;
-    static RestartService restartService = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,20 +32,20 @@ public class MainActivity extends AppCompatActivity {
 
     private void initService(){
 
-        restartService = new RestartService();
-        intent = new Intent(MainActivity.this, GameService.class);
-        IntentFilter intentFilter = new IntentFilter("com.daeseong.gameservice.GameService");
-        registerReceiver(restartService, intentFilter);
-        startService(intent);
+        if(GameService.serviceIntent == null){
+            Intent service = new Intent(this, GameService.class);
+            startService(service);
+        }
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
 
-        Log.d(TAG, "onDestroy");
+        //서비스 재시작
+        //sendBroadcast(new Intent("ACTION.RestartService"));
 
-        unregisterReceiver(restartService);
+        Log.d(TAG, "onDestroy");
     }
 
     private void checkPermissions() {

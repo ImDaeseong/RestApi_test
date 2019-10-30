@@ -4,6 +4,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
+import android.util.Log;
 
 public class RestartService extends BroadcastReceiver {
 
@@ -12,20 +13,26 @@ public class RestartService extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
 
+        Log.d(TAG, "onReceive:" + intent.getAction().toString());
+
         if(intent.getAction().equals("ACTION.RestartService")){
 
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                context.startForegroundService(new Intent(context, GameService.class));
+                Intent service = new Intent(context, ForegroundService.class);
+                context.startForegroundService(service);
             } else {
-                context.startService(new Intent(context, GameService.class));
+                Intent service = new Intent(context, GameService.class);
+                context.startService(service);
             }
 
         } else  if(intent.getAction().equals(Intent.ACTION_BOOT_COMPLETED)){
 
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                context.startForegroundService(new Intent(context, GameService.class));
+                Intent service = new Intent(context, ForegroundService.class);
+                context.startForegroundService(service);
             } else {
-                context.startService(new Intent(context, GameService.class));
+                Intent service = new Intent(context, GameService.class);
+                context.startService(service);
             }
         }
     }

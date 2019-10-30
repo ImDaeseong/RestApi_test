@@ -2,8 +2,6 @@ package com.daeseong.gameservice;
 
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
-import android.app.AlarmManager;
-import android.app.PendingIntent;
 import android.app.Service;
 import android.app.usage.UsageStats;
 import android.app.usage.UsageStatsManager;
@@ -15,8 +13,6 @@ import android.os.Build;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
-import android.os.SystemClock;
-import android.text.TextUtils;
 import android.util.Log;
 import android.widget.Toast;
 import java.text.SimpleDateFormat;
@@ -32,6 +28,8 @@ public class GameService extends Service {
 
     private static final String TAG = GameService.class.getSimpleName();
 
+    public static Intent serviceIntent = null;
+
     private TimerTask timerTask = null;
     private Timer timer = null;
 
@@ -46,7 +44,6 @@ public class GameService extends Service {
         super.onCreate();
 
         initData();
-
     }
 
     private void PreferencesInfo(boolean bload){
@@ -89,6 +86,8 @@ public class GameService extends Service {
 
         Log.d(TAG, "onStartCommand");
 
+        serviceIntent = intent;
+
         PreferencesInfo(true);
 
         startTimer();
@@ -100,6 +99,8 @@ public class GameService extends Service {
     public void onDestroy() {
         super.onDestroy();
 
+        serviceIntent = null;
+
         Log.d(TAG, "onDestroy");
 
         PreferencesInfo(false);
@@ -108,7 +109,8 @@ public class GameService extends Service {
 
         handler.removeMessages(0);
 
-        registerAlarm();
+        //서비스 재시작
+        sendBroadcast(new Intent("ACTION.RestartService"));
     }
 
     @Override
@@ -155,28 +157,6 @@ public class GameService extends Service {
         }
     }
 
-    public void registerAlarm() {
-
-        Intent intent = new Intent(GameService.this, RestartService.class);
-        intent.setAction("ACTION.RestartService");
-        PendingIntent pendingIntent = PendingIntent.getBroadcast(GameService.this, 0, intent, 0);
-        long elapsedRealtime = SystemClock.elapsedRealtime();
-        elapsedRealtime += 1*1000;
-        AlarmManager alarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
-        //알람 등록
-        alarmManager.setRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP, elapsedRealtime, 10*1000, pendingIntent);
-    }
-
-    public void unregisterAlarm() {
-
-        Intent intent = new Intent(GameService.this, RestartService.class);
-        intent.setAction("ACTION.RestartService");
-        PendingIntent pendingIntent = PendingIntent.getBroadcast(GameService.this, 0, intent, 0);
-        AlarmManager alarmManager = (AlarmManager)getSystemService(ALARM_SERVICE);
-        //알람 취소
-        alarmManager.cancel(pendingIntent);
-    }
-
     private Handler handler = new Handler(new Handler.Callback() {
         @Override
         public boolean handleMessage(Message msg) {
@@ -203,6 +183,9 @@ public class GameService extends Service {
         }catch (Exception ex){
             Log.e(TAG, ex.getMessage().toString());
         }
+
+        //sample
+        //iteminfo.getInstance().setGameItem("com.kakaogames.moonlight");
     }
 
     private void getListRunPackageName() {
