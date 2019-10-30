@@ -15,26 +15,20 @@ public class RestartService extends BroadcastReceiver {
 
         Log.d(TAG, "onReceive:" + intent.getAction().toString());
 
-        if(intent.getAction().equals("ACTION.RestartService")){
+        try {
 
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                Intent service = new Intent(context, ForegroundService.class);
+                Intent service = new Intent(context, GameService.class);
                 context.startForegroundService(service);
             } else {
                 Intent service = new Intent(context, GameService.class);
                 context.startService(service);
             }
 
-        } else  if(intent.getAction().equals(Intent.ACTION_BOOT_COMPLETED)){
-
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                Intent service = new Intent(context, ForegroundService.class);
-                context.startForegroundService(service);
-            } else {
-                Intent service = new Intent(context, GameService.class);
-                context.startService(service);
-            }
+        }catch (Exception ex){
+            Log.e(TAG, ex.getMessage().toString());
         }
+
     }
 
 }

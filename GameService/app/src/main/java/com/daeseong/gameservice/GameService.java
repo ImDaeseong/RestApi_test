@@ -186,100 +186,108 @@ public class GameService extends Service {
 
         //sample
         //iteminfo.getInstance().setGameItem("com.kakaogames.moonlight");
+        //iteminfo.getInstance().setGameItem("com.google.android.youtube");
     }
 
     private void getListRunPackageName() {
 
-        UsageStatsManager usageStatsManager = (UsageStatsManager)getSystemService(Context.USAGE_STATS_SERVICE);
-        long time = System.currentTimeMillis();
-        List<UsageStats> usageStats = usageStatsManager.queryUsageStats(UsageStatsManager.INTERVAL_BEST, 0, time);
-        if (usageStats != null){
+        try {
 
-            SortedMap<Long, UsageStats> runningTask = new TreeMap<Long,UsageStats>();
-            for (UsageStats item : usageStats) {
-                runningTask.put(item.getLastTimeUsed(), item);
-            }
+            UsageStatsManager usageStatsManager = (UsageStatsManager) getSystemService(Context.USAGE_STATS_SERVICE);
+            long time = System.currentTimeMillis();
+            List<UsageStats> usageStats = usageStatsManager.queryUsageStats(UsageStatsManager.INTERVAL_BEST, 0, time);
+            if (usageStats != null) {
 
-            if (runningTask != null && !runningTask.isEmpty()){
-
-                if(!lastpackagename.equals(runningTask.get(runningTask.lastKey()).getPackageName())){
-
-                    if(gameinfoMap.containsKey(lastpackagename)){
-                        String sLog = "";
-                        sLog = String.format("종료된 앱:%s  시작시간:%s  끝시간:%s  ", gameinfoMap.get(lastpackagename).getPackagename(),  gameinfoMap.get(lastpackagename).getStarttm(), gameinfoMap.get(lastpackagename).getEndtm());
-                        Log.e(TAG, sLog);
-
-                        Message msg = handler.obtainMessage();
-                        msg.what = 0;
-                        msg.obj = sLog;
-                        handler.sendMessage(msg);
-
-                        //제거
-                        gameinfoMap.remove(lastpackagename);
-                        PreferencesInit();
-                    }
+                SortedMap<Long, UsageStats> runningTask = new TreeMap<Long, UsageStats>();
+                for (UsageStats item : usageStats) {
+                    runningTask.put(item.getLastTimeUsed(), item);
                 }
 
-                //항목에 있는 패키지명 등록
-                if(iteminfo.getInstance().isGameItem(runningTask.get(runningTask.lastKey()).getPackageName())) {
+                if (runningTask != null && !runningTask.isEmpty()) {
 
-                    String packagename = runningTask.get(runningTask.lastKey()).getPackageName();
+                    if (!lastpackagename.equals(runningTask.get(runningTask.lastKey()).getPackageName())) {
 
-                    if(!gameinfoMap.containsKey(packagename)){
+                        if (gameinfoMap.containsKey(lastpackagename)) {
+                            String sLog = "";
+                            sLog = String.format("종료된 앱:%s  시작시간:%s  끝시간:%s  ", gameinfoMap.get(lastpackagename).getPackagename(), gameinfoMap.get(lastpackagename).getStarttm(), gameinfoMap.get(lastpackagename).getEndtm());
+                            Log.e(TAG, sLog);
 
-                        gameinfoMap.put(packagename, new gameinfo(packagename, getTimeDate(), getTimeDate()) );
+                            Message msg = handler.obtainMessage();
+                            msg.what = 0;
+                            msg.obj = sLog;
+                            handler.sendMessage(msg);
 
-                        String sLog = "";
-                        sLog = String.format("시작된 앱이름:%s  시작시간:%s  끝시간:%s  ", packagename,  gameinfoMap.get(packagename).getStarttm(), gameinfoMap.get(packagename).getEndtm());
-                        Log.e(TAG, sLog);
+                            //제거
+                            gameinfoMap.remove(lastpackagename);
+                            PreferencesInit();
+                        }
+                    }
 
-                        Message msg = handler.obtainMessage();
-                        msg.what = 0;
-                        msg.obj = sLog;
-                        handler.sendMessage(msg);
+                    //항목에 있는 패키지명 등록
+                    if (iteminfo.getInstance().isGameItem(runningTask.get(runningTask.lastKey()).getPackageName())) {
 
-                        lastpackagename = packagename;
-                        lastStarttm = gameinfoMap.get(packagename).getStarttm();
+                        String packagename = runningTask.get(runningTask.lastKey()).getPackageName();
+
+                        if (!gameinfoMap.containsKey(packagename)) {
+
+                            gameinfoMap.put(packagename, new gameinfo(packagename, getTimeDate(), getTimeDate()));
+
+                            String sLog = "";
+                            sLog = String.format("시작된 앱이름:%s  시작시간:%s  끝시간:%s  ", packagename, gameinfoMap.get(packagename).getStarttm(), gameinfoMap.get(packagename).getEndtm());
+                            Log.e(TAG, sLog);
+
+                            Message msg = handler.obtainMessage();
+                            msg.what = 0;
+                            msg.obj = sLog;
+                            handler.sendMessage(msg);
+
+                            lastpackagename = packagename;
+                            lastStarttm = gameinfoMap.get(packagename).getStarttm();
+
+                        } else {
+                            String starttime = gameinfoMap.get(packagename).getStarttm();
+                            gameinfoMap.put(packagename, new gameinfo(packagename, starttime, getTimeDate()));
+
+                            String sLog = "";
+                            sLog = String.format("업데이트된 앱이름:%s  시작시간:%s  끝시간:%s  ", packagename, gameinfoMap.get(packagename).getStarttm(), gameinfoMap.get(packagename).getEndtm());
+                            Log.e(TAG, sLog);
+
+                            Message msg = handler.obtainMessage();
+                            msg.what = 0;
+                            msg.obj = sLog;
+                            handler.sendMessage(msg);
+
+                            lastpackagename = packagename;
+                            lastStarttm = starttime;
+                        }
 
                     } else {
-                        String starttime =  gameinfoMap.get(packagename).getStarttm();
-                        gameinfoMap.put(packagename, new gameinfo(packagename, starttime, getTimeDate()) );
 
-                        String sLog = "";
-                        sLog = String.format("업데이트된 앱이름:%s  시작시간:%s  끝시간:%s  ", packagename,  gameinfoMap.get(packagename).getStarttm(), gameinfoMap.get(packagename).getEndtm());
-                        Log.e(TAG, sLog);
+                        if (gameinfoMap.containsKey(lastpackagename)) {
+                            String sLog = "";
+                            sLog = String.format("종료된 앱:%s  시작시간:%s  끝시간:%s  ", gameinfoMap.get(lastpackagename).getPackagename(), gameinfoMap.get(lastpackagename).getStarttm(), gameinfoMap.get(lastpackagename).getEndtm());
+                            Log.e(TAG, sLog);
 
-                        Message msg = handler.obtainMessage();
-                        msg.what = 0;
-                        msg.obj = sLog;
-                        handler.sendMessage(msg);
+                            Message msg = handler.obtainMessage();
+                            msg.what = 0;
+                            msg.obj = sLog;
+                            handler.sendMessage(msg);
 
-                        lastpackagename = packagename;
-                        lastStarttm = starttime;
-                    }
+                            //제거
+                            gameinfoMap.remove(lastpackagename);
+                            PreferencesInit();
+                        }
 
-                }else {
-
-                    if(gameinfoMap.containsKey(lastpackagename)){
-                        String sLog = "";
-                        sLog = String.format("종료된 앱:%s  시작시간:%s  끝시간:%s  ", gameinfoMap.get(lastpackagename).getPackagename(),  gameinfoMap.get(lastpackagename).getStarttm(), gameinfoMap.get(lastpackagename).getEndtm());
-                        Log.e(TAG, sLog);
-
-                        Message msg = handler.obtainMessage();
-                        msg.what = 0;
-                        msg.obj = sLog;
-                        handler.sendMessage(msg);
-
-                        //제거
-                        gameinfoMap.remove(lastpackagename);
-                        PreferencesInit();
                     }
 
                 }
 
             }
 
+        }catch (Exception ex){
+            Log.e(TAG, ex.getMessage().toString());
         }
+
     }
 
     private static String getTimeDate() {

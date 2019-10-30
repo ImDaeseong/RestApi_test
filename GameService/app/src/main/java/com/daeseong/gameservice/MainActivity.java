@@ -32,10 +32,17 @@ public class MainActivity extends AppCompatActivity {
 
     private void initService(){
 
-        if(GameService.serviceIntent == null){
-            Intent service = new Intent(this, GameService.class);
-            startService(service);
+        try {
+
+            if(GameService.serviceIntent == null){
+                Intent service = new Intent(this, GameService.class);
+                startService(service);
+            }
+
+        }catch (Exception ex){
+            Log.e(TAG, ex.getMessage().toString());
         }
+
     }
 
     @Override
