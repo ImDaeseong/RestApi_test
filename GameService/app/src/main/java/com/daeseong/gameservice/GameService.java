@@ -110,7 +110,8 @@ public class GameService extends Service {
         handler.removeMessages(0);
 
         //서비스 재시작
-        sendBroadcast(new Intent("ACTION.RestartService"));
+        //getApplicationContext().sendBroadcast(new Intent("ACTION.RestartService"));
+        //sendBroadcast(new Intent("ACTION.RestartService"));
     }
 
     @Override
@@ -185,8 +186,9 @@ public class GameService extends Service {
         }
 
         //sample
-        //iteminfo.getInstance().setGameItem("com.kakaogames.moonlight");
-        //iteminfo.getInstance().setGameItem("com.google.android.youtube");
+        iteminfo.getInstance().setGameItem("com.kakaogames.moonlight");
+        iteminfo.getInstance().setGameItem("com.google.android.youtube");
+
     }
 
     private void getListRunPackageName() {
@@ -208,14 +210,11 @@ public class GameService extends Service {
                     if (!lastpackagename.equals(runningTask.get(runningTask.lastKey()).getPackageName())) {
 
                         if (gameinfoMap.containsKey(lastpackagename)) {
+
                             String sLog = "";
                             sLog = String.format("종료된 앱:%s  시작시간:%s  끝시간:%s  ", gameinfoMap.get(lastpackagename).getPackagename(), gameinfoMap.get(lastpackagename).getStarttm(), gameinfoMap.get(lastpackagename).getEndtm());
                             Log.e(TAG, sLog);
-
-                            Message msg = handler.obtainMessage();
-                            msg.what = 0;
-                            msg.obj = sLog;
-                            handler.sendMessage(msg);
+                            showMessage(sLog);
 
                             //제거
                             gameinfoMap.remove(lastpackagename);
@@ -235,27 +234,20 @@ public class GameService extends Service {
                             String sLog = "";
                             sLog = String.format("시작된 앱이름:%s  시작시간:%s  끝시간:%s  ", packagename, gameinfoMap.get(packagename).getStarttm(), gameinfoMap.get(packagename).getEndtm());
                             Log.e(TAG, sLog);
-
-                            Message msg = handler.obtainMessage();
-                            msg.what = 0;
-                            msg.obj = sLog;
-                            handler.sendMessage(msg);
+                            showMessage(sLog);
 
                             lastpackagename = packagename;
                             lastStarttm = gameinfoMap.get(packagename).getStarttm();
 
                         } else {
+
                             String starttime = gameinfoMap.get(packagename).getStarttm();
                             gameinfoMap.put(packagename, new gameinfo(packagename, starttime, getTimeDate()));
 
                             String sLog = "";
                             sLog = String.format("업데이트된 앱이름:%s  시작시간:%s  끝시간:%s  ", packagename, gameinfoMap.get(packagename).getStarttm(), gameinfoMap.get(packagename).getEndtm());
                             Log.e(TAG, sLog);
-
-                            Message msg = handler.obtainMessage();
-                            msg.what = 0;
-                            msg.obj = sLog;
-                            handler.sendMessage(msg);
+                            showMessage(sLog);
 
                             lastpackagename = packagename;
                             lastStarttm = starttime;
@@ -264,14 +256,11 @@ public class GameService extends Service {
                     } else {
 
                         if (gameinfoMap.containsKey(lastpackagename)) {
+
                             String sLog = "";
                             sLog = String.format("종료된 앱:%s  시작시간:%s  끝시간:%s  ", gameinfoMap.get(lastpackagename).getPackagename(), gameinfoMap.get(lastpackagename).getStarttm(), gameinfoMap.get(lastpackagename).getEndtm());
                             Log.e(TAG, sLog);
-
-                            Message msg = handler.obtainMessage();
-                            msg.what = 0;
-                            msg.obj = sLog;
-                            handler.sendMessage(msg);
+                            showMessage(sLog);
 
                             //제거
                             gameinfoMap.remove(lastpackagename);
@@ -308,6 +297,18 @@ public class GameService extends Service {
             return true;
         }
         return false;
+    }
+
+    private void showMessage(String sMsg){
+
+        try {
+            Message msg = handler.obtainMessage();
+            msg.what = 0;
+            msg.obj = sMsg;
+            handler.sendMessage(msg);
+        }catch (Exception ex){
+            Log.e(TAG, "Toast" + ex.getMessage().toString());
+        }
     }
 
 }
