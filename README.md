@@ -2,6 +2,6 @@
 
 서버 언어: go
 
-클라이언트 언어: go, android, Kotlin
+클라이언트 언어: go, android, Kotlin, c#
 
 내용: REST API 테스트
