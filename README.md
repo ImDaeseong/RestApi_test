@@ -1,6 +1,6 @@
 ## Golang REST API
 
-서버 언어: go
+서버 언어: go, python
 
 클라이언트 언어: go, android, Kotlin, c#
 
