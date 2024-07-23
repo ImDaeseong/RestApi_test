@@ -1,5 +1,6 @@
 package com.daeseong.gameservice;
 
+import android.util.Log;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -9,7 +10,11 @@ import java.net.URL;
 
 public class HttpUtil {
 
+    private static final String TAG = HttpUtil.class.getSimpleName();
+
     public static String GetGameDataResult(String sUrl) {
+
+        Log.e(TAG, sUrl);
 
         HttpURLConnection httpURLConnection = null;
         InputStream inputStream = null;
@@ -34,7 +39,8 @@ public class HttpUtil {
             }
             httpURLConnection.disconnect();
 
-        }catch (IOException e){
+        } catch (IOException e) {
+            Log.e(TAG, e.getMessage().toString());
         }finally{
             if(inputStream != null){
                 try{
