@@ -3,7 +3,6 @@ package com.daeseong.gameservice
 import android.content.Context
 import android.content.SharedPreferences
 
-
 object Preferences_util {
 
     private const val FILE_NAME = "GameData"

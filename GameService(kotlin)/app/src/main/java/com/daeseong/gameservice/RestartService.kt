@@ -6,7 +6,6 @@ import android.content.Intent
 import android.os.Build
 import android.util.Log
 
-
 class RestartService : BroadcastReceiver() {
 
     private val tag = RestartService::class.java.simpleName

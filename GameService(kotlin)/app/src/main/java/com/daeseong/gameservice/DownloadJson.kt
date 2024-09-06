@@ -5,7 +5,6 @@ import android.util.Log
 import com.daeseong.gameservice.HttpUtil.GetGameDataResult
 import org.json.JSONArray
 
-
 class DownloadJson : AsyncTask<Void?, Void?, String>() {
 
     private val tag = DownloadJson::class.java.simpleName

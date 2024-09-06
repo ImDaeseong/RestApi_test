@@ -19,7 +19,6 @@ import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.collections.HashMap
 
-
 class GameService : Service() {
 
     private val tag = GameService::class.java.simpleName
